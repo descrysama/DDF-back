@@ -1,0 +1,40 @@
+{
+  "kind": "collectionType",
+  "collectionName": "volunteer_assignments",
+  "info": {
+    "singularName": "volunteer-assignment",
+    "pluralName": "volunteer-assignments",
+    "displayName": "Volunteer Assignment"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "volunteer": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "animal": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::animal.animal",
+      "inversedBy": "volunteer_assignments"
+    },
+    "task_type": {
+      "type": "enumeration",
+      "enum": [
+        "transport",
+        "vet",
+        "socialization"
+      ]
+    },
+    "assigned_at": {
+      "type": "date"
+    },
+    "completed_at": {
+      "type": "date"
+    }
+  }
+}

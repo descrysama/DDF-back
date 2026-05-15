@@ -1,0 +1,50 @@
+{
+  "kind": "collectionType",
+  "collectionName": "foster_families",
+  "info": {
+    "singularName": "foster-family",
+    "pluralName": "foster-families",
+    "displayName": "Foster Family"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "address": {
+      "type": "string"
+    },
+    "has_children": {
+      "type": "boolean",
+      "default": false
+    },
+    "has_dogs": {
+      "type": "boolean",
+      "default": false
+    },
+    "has_cats": {
+      "type": "boolean",
+      "default": false
+    },
+    "max_capacity": {
+      "type": "integer"
+    },
+    "foster_assignments": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::foster-assignment.foster-assignment",
+      "mappedBy": "foster_family"
+    },
+    "evaluations": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::evaluation.evaluation",
+      "mappedBy": "foster_family"
+    }
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "kind": "collectionType",
+  "collectionName": "animals",
+  "info": {
+    "singularName": "animal",
+    "pluralName": "animals",
+    "displayName": "Animal"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "age": {
+      "type": "integer"
+    },
+    "gender": {
+      "type": "enumeration",
+      "enum": [
+        "male",
+        "female",
+        "unknown"
+      ]
+    },
+    "description": {
+      "type": "text"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "available",
+        "in_foster",
+        "reserved",
+        "adopted"
+      ],
+      "default": "available"
+    },
+    "breed": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::breed.breed",
+      "inversedBy": "animals"
+    },
+    "bonded_with": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::animal.animal"
+    },
+    "diet_notes": {
+      "type": "text"
+    },
+    "ok_with_children": {
+      "type": "boolean",
+      "default": false
+    },
+    "ok_with_dogs": {
+      "type": "boolean",
+      "default": false
+    },
+    "ok_with_cats": {
+      "type": "boolean",
+      "default": false
+    },
+    "indoor_only": {
+      "type": "boolean",
+      "default": false
+    },
+    "activity_level": {
+      "type": "enumeration",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "announcements": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::announcement.announcement",
+      "mappedBy": "animals"
+    },
+    "foster_assignments": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::foster-assignment.foster-assignment",
+      "mappedBy": "animal"
+    },
+    "evaluations": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::evaluation.evaluation",
+      "mappedBy": "animal"
+    },
+    "volunteer_assignments": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::volunteer-assignment.volunteer-assignment",
+      "mappedBy": "animal"
+    }
+  }
+}

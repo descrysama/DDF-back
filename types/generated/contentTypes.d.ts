@@ -459,6 +459,191 @@ export interface ApiAboutAbout extends Struct.SingleTypeSchema {
   };
 }
 
+export interface ApiAdopterProfileAdopterProfile
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'adopter_profiles';
+  info: {
+    displayName: 'Adopter Profile';
+    pluralName: 'adopter-profiles';
+    singularName: 'adopter-profile';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    experience_level: Schema.Attribute.Enumeration<
+      ['none', 'some', 'experienced']
+    > &
+      Schema.Attribute.DefaultTo<'none'>;
+    has_cats: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    has_children: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    has_dogs: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    has_garden: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    housing_type: Schema.Attribute.Enumeration<['house', 'apartment']>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::adopter-profile.adopter-profile'
+    > &
+      Schema.Attribute.Private;
+    motivation: Schema.Attribute.Text;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    user: Schema.Attribute.Relation<
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
+  };
+}
+
+export interface ApiAdoptionRequestAdoptionRequest
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'adoption_requests';
+  info: {
+    displayName: 'Adoption Request';
+    pluralName: 'adoption-requests';
+    singularName: 'adoption-request';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    adopter: Schema.Attribute.Relation<
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    announcement: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::announcement.announcement'
+    >;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::adoption-request.adoption-request'
+    > &
+      Schema.Attribute.Private;
+    match_score: Schema.Attribute.Integer;
+    message: Schema.Attribute.Text;
+    publishedAt: Schema.Attribute.DateTime;
+    referent: Schema.Attribute.Relation<
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    request_date: Schema.Attribute.Date;
+    status: Schema.Attribute.Enumeration<['pending', 'approved', 'rejected']> &
+      Schema.Attribute.DefaultTo<'pending'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiAnimalAnimal extends Struct.CollectionTypeSchema {
+  collectionName: 'animals';
+  info: {
+    displayName: 'Animal';
+    pluralName: 'animals';
+    singularName: 'animal';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    activity_level: Schema.Attribute.Enumeration<['low', 'medium', 'high']>;
+    age: Schema.Attribute.Integer;
+    announcements: Schema.Attribute.Relation<
+      'manyToMany',
+      'api::announcement.announcement'
+    >;
+    bonded_with: Schema.Attribute.Relation<'oneToOne', 'api::animal.animal'>;
+    breed: Schema.Attribute.Relation<'manyToOne', 'api::breed.breed'>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    description: Schema.Attribute.Text;
+    diet_notes: Schema.Attribute.Text;
+    evaluations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::evaluation.evaluation'
+    >;
+    foster_assignments: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::foster-assignment.foster-assignment'
+    >;
+    gender: Schema.Attribute.Enumeration<['male', 'female', 'unknown']>;
+    indoor_only: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::animal.animal'
+    > &
+      Schema.Attribute.Private;
+    name: Schema.Attribute.String & Schema.Attribute.Required;
+    ok_with_cats: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    ok_with_children: Schema.Attribute.Boolean &
+      Schema.Attribute.DefaultTo<false>;
+    ok_with_dogs: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    publishedAt: Schema.Attribute.DateTime;
+    status: Schema.Attribute.Enumeration<
+      ['available', 'in_foster', 'reserved', 'adopted']
+    > &
+      Schema.Attribute.DefaultTo<'available'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    volunteer_assignments: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::volunteer-assignment.volunteer-assignment'
+    >;
+  };
+}
+
+export interface ApiAnnouncementAnnouncement
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'announcements';
+  info: {
+    displayName: 'Announcement';
+    pluralName: 'announcements';
+    singularName: 'announcement';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    adoption_requests: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::adoption-request.adoption-request'
+    >;
+    animals: Schema.Attribute.Relation<'manyToMany', 'api::animal.animal'>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    description: Schema.Attribute.Text;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::announcement.announcement'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    status: Schema.Attribute.Enumeration<['open', 'closed']> &
+      Schema.Attribute.DefaultTo<'open'>;
+    tags: Schema.Attribute.Relation<'manyToMany', 'api::tag.tag'>;
+    title: Schema.Attribute.String & Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiArticleArticle extends Struct.CollectionTypeSchema {
   collectionName: 'articles';
   info: {
@@ -531,6 +716,33 @@ export interface ApiAuthorAuthor extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiBreedBreed extends Struct.CollectionTypeSchema {
+  collectionName: 'breeds';
+  info: {
+    displayName: 'Breed';
+    pluralName: 'breeds';
+    singularName: 'breed';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    animals: Schema.Attribute.Relation<'oneToMany', 'api::animal.animal'>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'api::breed.breed'> &
+      Schema.Attribute.Private;
+    name: Schema.Attribute.String & Schema.Attribute.Required;
+    publishedAt: Schema.Attribute.DateTime;
+    species: Schema.Attribute.String;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiCatCat extends Struct.CollectionTypeSchema {
   collectionName: 'cats';
   info: {
@@ -595,6 +807,132 @@ export interface ApiCategoryCategory extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiEvaluationEvaluation extends Struct.CollectionTypeSchema {
+  collectionName: 'evaluations';
+  info: {
+    displayName: 'Evaluation';
+    pluralName: 'evaluations';
+    singularName: 'evaluation';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    animal: Schema.Attribute.Relation<'manyToOne', 'api::animal.animal'>;
+    author: Schema.Attribute.Relation<
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    behaviour_notes: Schema.Attribute.Text;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    diet_notes: Schema.Attribute.Text;
+    energy_level: Schema.Attribute.String;
+    evaluated_at: Schema.Attribute.Date;
+    foster_family: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::foster-family.foster-family'
+    >;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::evaluation.evaluation'
+    > &
+      Schema.Attribute.Private;
+    ok_with_cats: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    ok_with_children: Schema.Attribute.Boolean &
+      Schema.Attribute.DefaultTo<false>;
+    ok_with_dogs: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiFosterAssignmentFosterAssignment
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'foster_assignments';
+  info: {
+    displayName: 'Foster Assignment';
+    pluralName: 'foster-assignments';
+    singularName: 'foster-assignment';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    animal: Schema.Attribute.Relation<'manyToOne', 'api::animal.animal'>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    end_date: Schema.Attribute.Date;
+    foster_family: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::foster-family.foster-family'
+    >;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::foster-assignment.foster-assignment'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    start_date: Schema.Attribute.Date;
+    status: Schema.Attribute.Enumeration<['active', 'completed']> &
+      Schema.Attribute.DefaultTo<'active'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiFosterFamilyFosterFamily
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'foster_families';
+  info: {
+    displayName: 'Foster Family';
+    pluralName: 'foster-families';
+    singularName: 'foster-family';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    address: Schema.Attribute.String;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    evaluations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::evaluation.evaluation'
+    >;
+    foster_assignments: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::foster-assignment.foster-assignment'
+    >;
+    has_cats: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    has_children: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    has_dogs: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::foster-family.foster-family'
+    > &
+      Schema.Attribute.Private;
+    max_capacity: Schema.Attribute.Integer;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    user: Schema.Attribute.Relation<
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
+  };
+}
+
 export interface ApiGlobalGlobal extends Struct.SingleTypeSchema {
   collectionName: 'globals';
   info: {
@@ -624,6 +962,73 @@ export interface ApiGlobalGlobal extends Struct.SingleTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+  };
+}
+
+export interface ApiTagTag extends Struct.CollectionTypeSchema {
+  collectionName: 'tags';
+  info: {
+    displayName: 'Tag';
+    pluralName: 'tags';
+    singularName: 'tag';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    announcements: Schema.Attribute.Relation<
+      'manyToMany',
+      'api::announcement.announcement'
+    >;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'api::tag.tag'> &
+      Schema.Attribute.Private;
+    name: Schema.Attribute.String & Schema.Attribute.Required;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiVolunteerAssignmentVolunteerAssignment
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'volunteer_assignments';
+  info: {
+    displayName: 'Volunteer Assignment';
+    pluralName: 'volunteer-assignments';
+    singularName: 'volunteer-assignment';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    animal: Schema.Attribute.Relation<'manyToOne', 'api::animal.animal'>;
+    assigned_at: Schema.Attribute.Date;
+    completed_at: Schema.Attribute.Date;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::volunteer-assignment.volunteer-assignment'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    task_type: Schema.Attribute.Enumeration<
+      ['transport', 'vet', 'socialization']
+    >;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    volunteer: Schema.Attribute.Relation<
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
   };
 }
 
@@ -1138,11 +1543,21 @@ declare module '@strapi/strapi' {
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
       'api::about.about': ApiAboutAbout;
+      'api::adopter-profile.adopter-profile': ApiAdopterProfileAdopterProfile;
+      'api::adoption-request.adoption-request': ApiAdoptionRequestAdoptionRequest;
+      'api::animal.animal': ApiAnimalAnimal;
+      'api::announcement.announcement': ApiAnnouncementAnnouncement;
       'api::article.article': ApiArticleArticle;
       'api::author.author': ApiAuthorAuthor;
+      'api::breed.breed': ApiBreedBreed;
       'api::cat.cat': ApiCatCat;
       'api::category.category': ApiCategoryCategory;
+      'api::evaluation.evaluation': ApiEvaluationEvaluation;
+      'api::foster-assignment.foster-assignment': ApiFosterAssignmentFosterAssignment;
+      'api::foster-family.foster-family': ApiFosterFamilyFosterFamily;
       'api::global.global': ApiGlobalGlobal;
+      'api::tag.tag': ApiTagTag;
+      'api::volunteer-assignment.volunteer-assignment': ApiVolunteerAssignmentVolunteerAssignment;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;
