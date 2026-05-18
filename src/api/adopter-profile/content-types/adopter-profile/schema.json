@@ -1,0 +1,55 @@
+{
+  "kind": "collectionType",
+  "collectionName": "adopter_profiles",
+  "info": {
+    "singularName": "adopter-profile",
+    "pluralName": "adopter-profiles",
+    "displayName": "Adopter Profile"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "housing_type": {
+      "type": "enumeration",
+      "enum": [
+        "house",
+        "apartment"
+      ]
+    },
+    "has_garden": {
+      "type": "boolean",
+      "default": false
+    },
+    "has_children": {
+      "type": "boolean",
+      "default": false
+    },
+    "has_dogs": {
+      "type": "boolean",
+      "default": false
+    },
+    "has_cats": {
+      "type": "boolean",
+      "default": false
+    },
+    "experience_level": {
+      "type": "enumeration",
+      "enum": [
+        "none",
+        "some",
+        "experienced"
+      ],
+      "default": "none"
+    },
+    "motivation": {
+      "type": "text"
+    }
+  }
+}

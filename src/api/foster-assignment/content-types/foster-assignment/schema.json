@@ -1,0 +1,41 @@
+{
+  "kind": "collectionType",
+  "collectionName": "foster_assignments",
+  "info": {
+    "singularName": "foster-assignment",
+    "pluralName": "foster-assignments",
+    "displayName": "Foster Assignment"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "animal": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::animal.animal",
+      "inversedBy": "foster_assignments"
+    },
+    "foster_family": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::foster-family.foster-family",
+      "inversedBy": "foster_assignments"
+    },
+    "start_date": {
+      "type": "date"
+    },
+    "end_date": {
+      "type": "date"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "active",
+        "completed"
+      ],
+      "default": "active"
+    }
+  }
+}

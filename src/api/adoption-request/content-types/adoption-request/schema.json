@@ -1,0 +1,49 @@
+{
+  "kind": "collectionType",
+  "collectionName": "adoption_requests",
+  "info": {
+    "singularName": "adoption-request",
+    "pluralName": "adoption-requests",
+    "displayName": "Adoption Request"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "message": {
+      "type": "text"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "default": "pending"
+    },
+    "match_score": {
+      "type": "integer"
+    },
+    "request_date": {
+      "type": "date"
+    },
+    "announcement": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::announcement.announcement",
+      "inversedBy": "adoption_requests"
+    },
+    "adopter": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "referent": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    }
+  }
+}

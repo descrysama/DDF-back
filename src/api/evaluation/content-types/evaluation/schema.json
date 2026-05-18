@@ -1,0 +1,56 @@
+{
+  "kind": "collectionType",
+  "collectionName": "evaluations",
+  "info": {
+    "singularName": "evaluation",
+    "pluralName": "evaluations",
+    "displayName": "Evaluation"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "animal": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::animal.animal",
+      "inversedBy": "evaluations"
+    },
+    "foster_family": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::foster-family.foster-family",
+      "inversedBy": "evaluations"
+    },
+    "author": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "energy_level": {
+      "type": "string"
+    },
+    "ok_with_children": {
+      "type": "boolean",
+      "default": false
+    },
+    "ok_with_dogs": {
+      "type": "boolean",
+      "default": false
+    },
+    "ok_with_cats": {
+      "type": "boolean",
+      "default": false
+    },
+    "behaviour_notes": {
+      "type": "text"
+    },
+    "diet_notes": {
+      "type": "text"
+    },
+    "evaluated_at": {
+      "type": "date"
+    }
+  }
+}

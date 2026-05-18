@@ -1,0 +1,28 @@
+{
+  "kind": "collectionType",
+  "collectionName": "breeds",
+  "info": {
+    "singularName": "breed",
+    "pluralName": "breeds",
+    "displayName": "Breed"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "species": {
+      "type": "string"
+    },
+    "animals": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::animal.animal",
+      "mappedBy": "breed"
+    }
+  }
+}
