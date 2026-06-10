@@ -1,4 +1,7 @@
 import type { Core } from '@strapi/strapi';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
 
 /**
  * Seed de démonstration pour DDF (Défense Des Félins)
@@ -113,13 +116,18 @@ export async function seed(strapi: Core.Strapi) {
     }),
   ]);
 
+  // ─── 4. Images ─────────────────────────────────────────────────────────────
+
+  strapi.log.info('[seed] Téléchargement des images...');
+  await uploadAnimalImages(strapi, { mimi, oscar, luna, felix, nala, tigrou, bella });
+
   // Lien duo : Félix <-> Nala (relation self-référentielle)
   await Promise.all([
     strapi.db.query('api::animal.animal').update({ where: { id: felix.id }, data: { bonded_with: nala.id } }),
     strapi.db.query('api::animal.animal').update({ where: { id: nala.id }, data: { bonded_with: felix.id } }),
   ]);
 
-  // ─── 4. Foster Family ───────────────────────────────────────────────────────
+  // ─── 5. Foster Family ───────────────────────────────────────────────────────
 
   const sophieFosterFamily = await strapi.db.query('api::foster-family.foster-family').create({
     data: {
@@ -132,7 +140,7 @@ export async function seed(strapi: Core.Strapi) {
     },
   });
 
-  // ─── 5. Foster Assignments ─────────────────────────────────────────────────
+  // ─── 6. Foster Assignments ─────────────────────────────────────────────────
 
   const today = new Date();
   const oneMonthAgo = new Date(today); oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
@@ -165,7 +173,7 @@ export async function seed(strapi: Core.Strapi) {
     }),
   ]);
 
-  // ─── 6. Evaluations ────────────────────────────────────────────────────────
+  // ─── 7. Evaluations ────────────────────────────────────────────────────────
 
   const twoWeeksAgo = new Date(today); twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
 
@@ -200,7 +208,7 @@ export async function seed(strapi: Core.Strapi) {
     }),
   ]);
 
-  // ─── 7. Adopter Profiles ───────────────────────────────────────────────────
+  // ─── 8. Adopter Profiles ───────────────────────────────────────────────────
 
   await Promise.all([
     strapi.db.query('api::adopter-profile.adopter-profile').create({
@@ -229,7 +237,7 @@ export async function seed(strapi: Core.Strapi) {
     }),
   ]);
 
-  // ─── 8. Tags ───────────────────────────────────────────────────────────────
+  // ─── 9. Tags ───────────────────────────────────────────────────────────────
 
   const [tagSociable, tagTimide, tagDuo, tagUrgent, tagChaton] = await Promise.all([
     strapi.db.query('api::tag.tag').create({ data: { name: 'sociable' } }),
@@ -239,7 +247,7 @@ export async function seed(strapi: Core.Strapi) {
     strapi.db.query('api::tag.tag').create({ data: { name: 'chaton'   } }),
   ]);
 
-  // ─── 9. Announcements ──────────────────────────────────────────────────────
+  // ─── 10. Announcements ──────────────────────────────────────────────────────
 
   const [announceMimi, announceDuo, announceTigrou] = await Promise.all([
     strapi.db.query('api::announcement.announcement').create({
@@ -271,7 +279,7 @@ export async function seed(strapi: Core.Strapi) {
     }),
   ]);
 
-  // ─── 10. Adoption Requests ─────────────────────────────────────────────────
+  // ─── 11. Adoption Requests ─────────────────────────────────────────────────
 
   await Promise.all([
     strapi.db.query('api::adoption-request.adoption-request').create({
@@ -298,7 +306,7 @@ export async function seed(strapi: Core.Strapi) {
     }),
   ]);
 
-  // ─── 11. Volunteer Assignments ─────────────────────────────────────────────
+  // ─── 12. Volunteer Assignments ─────────────────────────────────────────────
 
   const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1);
 
@@ -321,5 +329,102 @@ export async function seed(strapi: Core.Strapi) {
     }),
   ]);
 
-  strapi.log.info('[seed] ✅ Seed terminé avec succès.');
+  strapi.log.info('[seed] Seed terminé avec succès.');
+}
+
+// ─── Helpers images ──────────────────────────────────────────────────────────
+
+// fetch natif (Node 20+) gère les redirects et les URLs protocol-relative automatiquement
+async function downloadFile(url: string, destPath: string): Promise<void> {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status} pour ${url}`);
+  const buffer = await res.arrayBuffer();
+  fs.writeFileSync(destPath, Buffer.from(buffer));
+}
+
+async function uploadImage(
+  strapi: Core.Strapi,
+  url: string,
+  name: string,
+  altText: string,
+): Promise<{ id: number; documentId: string } | null> {
+  const tmpPath = path.join(os.tmpdir(), `${name}.jpg`);
+  try {
+    await downloadFile(url, tmpPath);
+    const stats = fs.statSync(tmpPath);
+    const [file] = await strapi.plugin('upload').service('upload').upload({
+      data: { fileInfo: { name: `${name}.jpg`, alternativeText: altText, caption: altText } },
+      files: { filepath: tmpPath, originalFilename: `${name}.jpg`, mimetype: 'image/jpeg', size: stats.size },
+    });
+    return file;
+  } catch (err) {
+    strapi.log.warn(`[seed] Impossible de télécharger l'image ${name}: ${err}`);
+    return null;
+  } finally {
+    if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath);
+  }
+}
+
+type AnimalEntry = { id: number; documentId: string };
+type FileEntry   = { id: number; documentId: string } | null;
+
+// Loremflickr : images libres de droits, reproductibles via le paramètre lock
+async function uploadAnimalImages(
+  strapi: Core.Strapi,
+  animals: Record<string, AnimalEntry>,
+) {
+  const base = 'https://loremflickr.com/800/600';
+
+  const [
+    mimiCover,    mimiExtra,
+    oscarCover,   oscarExtra,
+    lunaCover,    lunaExtra,
+    felixCover,   felixExtra,
+    nalaCover,    nalaExtra,
+    tigrouCover,  tigrouExtra,
+    bellaCover,   bellaExtra,
+  ] = await Promise.all([
+    uploadImage(strapi, `${base}/cat?lock=11`,         'mimi-cover',   'Mimi'),
+    uploadImage(strapi, `${base}/cat?lock=12`,         'mimi-2',       'Mimi'),
+    uploadImage(strapi, `${base}/maine-coon?lock=21`,  'oscar-cover',  'Oscar'),
+    uploadImage(strapi, `${base}/maine-coon?lock=22`,  'oscar-2',      'Oscar'),
+    uploadImage(strapi, `${base}/persian-cat?lock=31`, 'luna-cover',   'Luna'),
+    uploadImage(strapi, `${base}/persian-cat?lock=32`, 'luna-2',       'Luna'),
+    uploadImage(strapi, `${base}/siamese-cat?lock=41`, 'felix-cover',  'Félix'),
+    uploadImage(strapi, `${base}/siamese-cat?lock=42`, 'felix-2',      'Félix'),
+    uploadImage(strapi, `${base}/siamese-cat?lock=51`, 'nala-cover',   'Nala'),
+    uploadImage(strapi, `${base}/siamese-cat?lock=52`, 'nala-2',       'Nala'),
+    uploadImage(strapi, `${base}/bengal-cat?lock=61`,  'tigrou-cover', 'Tigrou'),
+    uploadImage(strapi, `${base}/bengal-cat?lock=62`,  'tigrou-2',     'Tigrou'),
+    uploadImage(strapi, `${base}/cat?lock=71`,         'bella-cover',  'Bella'),
+    uploadImage(strapi, `${base}/cat?lock=72`,         'bella-2',      'Bella'),
+  ]);
+
+  const toMedias = (cover: FileEntry, extra: FileEntry) =>
+    [
+      cover ? { image: cover.id, is_cover: true }  : null,
+      extra ? { image: extra.id, is_cover: false } : null,
+    ].filter(Boolean);
+
+  const imageMap: Record<string, ReturnType<typeof toMedias>> = {
+    mimi:   toMedias(mimiCover,   mimiExtra),
+    oscar:  toMedias(oscarCover,  oscarExtra),
+    luna:   toMedias(lunaCover,   lunaExtra),
+    felix:  toMedias(felixCover,  felixExtra),
+    nala:   toMedias(nalaCover,   nalaExtra),
+    tigrou: toMedias(tigrouCover, tigrouExtra),
+    bella:  toMedias(bellaCover,  bellaExtra),
+  };
+
+  // Le Document Service gère la création inline de composants avec leurs relations media
+  await Promise.all(
+    Object.entries(animals).map(([name, animal]) => {
+      const medias = imageMap[name];
+      if (!medias?.length) return Promise.resolve();
+      return (strapi.documents as any)('api::animal.animal').update({
+        documentId: animal.documentId,
+        data: { medias },
+      });
+    }),
+  );
 }

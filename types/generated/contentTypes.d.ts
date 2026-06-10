@@ -586,6 +586,7 @@ export interface ApiAnimalAnimal extends Struct.CollectionTypeSchema {
       'api::animal.animal'
     > &
       Schema.Attribute.Private;
+    medias: Schema.Attribute.Component<'shared.animal-media', true>;
     name: Schema.Attribute.String & Schema.Attribute.Required;
     ok_with_cats: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     ok_with_children: Schema.Attribute.Boolean &

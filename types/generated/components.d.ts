@@ -1,5 +1,17 @@
 import type { Schema, Struct } from '@strapi/strapi';
 
+export interface SharedAnimalMedia extends Struct.ComponentSchema {
+  collectionName: 'components_shared_animal_medias';
+  info: {
+    displayName: 'Animal Media';
+    icon: 'picture';
+  };
+  attributes: {
+    image: Schema.Attribute.Media<'images'> & Schema.Attribute.Required;
+    is_cover: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+  };
+}
+
 export interface SharedMedia extends Struct.ComponentSchema {
   collectionName: 'components_shared_media';
   info: {
@@ -65,6 +77,7 @@ export interface SharedSlider extends Struct.ComponentSchema {
 declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
+      'shared.animal-media': SharedAnimalMedia;
       'shared.media': SharedMedia;
       'shared.quote': SharedQuote;
       'shared.rich-text': SharedRichText;
