@@ -31,6 +31,21 @@ export async function seed(strapi: Core.Strapi) {
   });
   const roleId = defaultRole?.id ?? 1;
 
+  let adminRole = await strapi.db.query('plugin::users-permissions.role').findOne({
+    where: { type: 'admin' },
+  });
+  if (!adminRole) {
+    adminRole = await strapi.db.query('plugin::users-permissions.role').create({
+      data: {
+        name: 'Admin',
+        description: 'Administrateur applicatif DDF (accès /admin côté front)',
+        type: 'admin',
+      },
+    });
+    strapi.log.info('[seed] Rôle "admin" créé');
+  }
+  const adminRoleId = adminRole.id;
+
   const createUser = (data: object) =>
     strapi.plugin('users-permissions').service('user').add({
       confirmed: true,
@@ -38,6 +53,13 @@ export async function seed(strapi: Core.Strapi) {
       role:      roleId,
       ...data,
     });
+
+  await createUser({
+    username: 'admin',
+    email:    'admin@ddf.fr',
+    password: 'Admin123!',
+    role:     adminRoleId,
+  });
 
   const [marie, jean, sophie, luc, emma] = await Promise.all([
     createUser({ username: 'marie.dupont',   email: 'marie@ddf.fr',   password: 'Password123!' }),
