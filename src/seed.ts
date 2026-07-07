@@ -46,8 +46,26 @@ export async function seed(strapi: Core.Strapi) {
   }
   const adminRoleId = adminRole.id;
 
-  // Permissions pour le rôle admin : CRUD sur tous les content types + auth de base
-  const adminContentTypes = [
+  // ─── Rôle Bénévole ──────────────────────────────────────────────────────────
+
+  let benevoleRole = await strapi.db.query('plugin::users-permissions.role').findOne({
+    where: { name: 'Bénévole' },
+  });
+  if (!benevoleRole) {
+    benevoleRole = await strapi.db.query('plugin::users-permissions.role').create({
+      data: {
+        name: 'Bénévole',
+        description: 'Bénévole DDF — accès lecture + missions assignées',
+        type: 'authenticated',
+      },
+    });
+    strapi.log.info('[seed] Rôle "Bénévole" créé');
+  }
+  const benevoleRoleId = benevoleRole.id;
+
+  // ─── Permissions ────────────────────────────────────────────────────────────
+
+  const allContentTypes = [
     'api::animal.animal',
     'api::announcement.announcement',
     'api::adoption-request.adoption-request',
@@ -61,31 +79,49 @@ export async function seed(strapi: Core.Strapi) {
   ];
   const crudActions = ['find', 'findOne', 'create', 'update', 'delete'];
 
-  const adminPermissions = [
-    ...adminContentTypes.flatMap((ct) =>
-      crudActions.map((action) => `${ct}.${action}`)
-    ),
+  const authPerms = [
     'plugin::users-permissions.auth.logout',
     'plugin::users-permissions.auth.changePassword',
     'plugin::users-permissions.user.me',
+  ];
+
+  // Admin : CRUD complet + gestion des users
+  const adminPermissions = [
+    ...allContentTypes.flatMap((ct) =>
+      crudActions.map((action) => `${ct}.${action}`)
+    ),
+    ...authPerms,
     'plugin::users-permissions.user.find',
     'plugin::users-permissions.user.findOne',
   ];
 
-  const existingAdminPerms = await strapi.db.query('plugin::users-permissions.permission').findMany({
-    where: { role: adminRoleId },
-  });
+  // Bénévole : lecture seule sur les content types + CRUD sur ses missions/évals
+  const benevolePermissions = [
+    ...allContentTypes.map((ct) => `${ct}.find`),
+    ...allContentTypes.map((ct) => `${ct}.findOne`),
+    'api::evaluation.evaluation.create',
+    'api::volunteer-assignment.volunteer-assignment.create',
+    ...authPerms,
+  ];
 
-  if (existingAdminPerms.length === 0) {
-    await Promise.all(
-      adminPermissions.map((action) =>
-        strapi.db.query('plugin::users-permissions.permission').create({
-          data: { action, role: adminRoleId },
-        })
-      )
-    );
-    strapi.log.info(`[seed] ${adminPermissions.length} permissions ajoutées au rôle admin`);
+  async function seedPermissions(roleId: number, permissions: string[], roleName: string) {
+    const existing = await strapi.db.query('plugin::users-permissions.permission').findMany({
+      where: { role: roleId },
+    });
+    if (existing.length === 0) {
+      await Promise.all(
+        permissions.map((action) =>
+          strapi.db.query('plugin::users-permissions.permission').create({
+            data: { action, role: roleId },
+          })
+        )
+      );
+      strapi.log.info(`[seed] ${permissions.length} permissions ajoutées au rôle ${roleName}`);
+    }
   }
+
+  await seedPermissions(adminRoleId, adminPermissions, 'Admin');
+  await seedPermissions(benevoleRoleId, benevolePermissions, 'Bénévole');
 
   const createUser = (data: object) =>
     strapi.plugin('users-permissions').service('user').add({
@@ -103,9 +139,9 @@ export async function seed(strapi: Core.Strapi) {
   });
 
   const [marie, jean, sophie, luc, emma] = await Promise.all([
-    createUser({ username: 'marie.dupont',   email: 'marie@ddf.fr',   password: 'Password123!' }),
-    createUser({ username: 'jean.martin',    email: 'jean@ddf.fr',    password: 'Password123!' }),
-    createUser({ username: 'sophie.bernard', email: 'sophie@ddf.fr',  password: 'Password123!' }),
+    createUser({ username: 'marie.dupont',   email: 'marie@ddf.fr',   password: 'Password123!', role: benevoleRoleId }),
+    createUser({ username: 'jean.martin',    email: 'jean@ddf.fr',    password: 'Password123!', role: benevoleRoleId }),
+    createUser({ username: 'sophie.bernard', email: 'sophie@ddf.fr',  password: 'Password123!', role: benevoleRoleId }),
     createUser({ username: 'luc.petit',      email: 'luc@ddf.fr',     password: 'Password123!' }),
     createUser({ username: 'emma.moreau',    email: 'emma@ddf.fr',    password: 'Password123!' }),
   ]);
