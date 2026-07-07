@@ -32,19 +32,60 @@ export async function seed(strapi: Core.Strapi) {
   const roleId = defaultRole?.id ?? 1;
 
   let adminRole = await strapi.db.query('plugin::users-permissions.role').findOne({
-    where: { type: 'admin' },
+    where: { name: 'Admin' },
   });
   if (!adminRole) {
     adminRole = await strapi.db.query('plugin::users-permissions.role').create({
       data: {
         name: 'Admin',
         description: 'Administrateur applicatif DDF (accès /admin côté front)',
-        type: 'admin',
+        type: 'authenticated',
       },
     });
     strapi.log.info('[seed] Rôle "admin" créé');
   }
   const adminRoleId = adminRole.id;
+
+  // Permissions pour le rôle admin : CRUD sur tous les content types + auth de base
+  const adminContentTypes = [
+    'api::animal.animal',
+    'api::announcement.announcement',
+    'api::adoption-request.adoption-request',
+    'api::foster-family.foster-family',
+    'api::foster-assignment.foster-assignment',
+    'api::breed.breed',
+    'api::tag.tag',
+    'api::evaluation.evaluation',
+    'api::volunteer-assignment.volunteer-assignment',
+    'api::adopter-profile.adopter-profile',
+  ];
+  const crudActions = ['find', 'findOne', 'create', 'update', 'delete'];
+
+  const adminPermissions = [
+    ...adminContentTypes.flatMap((ct) =>
+      crudActions.map((action) => `${ct}.${action}`)
+    ),
+    'plugin::users-permissions.auth.logout',
+    'plugin::users-permissions.auth.changePassword',
+    'plugin::users-permissions.user.me',
+    'plugin::users-permissions.user.find',
+    'plugin::users-permissions.user.findOne',
+  ];
+
+  const existingAdminPerms = await strapi.db.query('plugin::users-permissions.permission').findMany({
+    where: { role: adminRoleId },
+  });
+
+  if (existingAdminPerms.length === 0) {
+    await Promise.all(
+      adminPermissions.map((action) =>
+        strapi.db.query('plugin::users-permissions.permission').create({
+          data: { action, role: adminRoleId },
+        })
+      )
+    );
+    strapi.log.info(`[seed] ${adminPermissions.length} permissions ajoutées au rôle admin`);
+  }
 
   const createUser = (data: object) =>
     strapi.plugin('users-permissions').service('user').add({
