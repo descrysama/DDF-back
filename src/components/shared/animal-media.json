@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_shared_animal_media",
+  "info": {
+    "displayName": "Animal Media",
+    "icon": "images"
+  },
+  "options": {},
+  "attributes": {
+    "is_cover": {
+      "type": "boolean",
+      "default": false
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "collectionName": "components_shared_medical_events",
+  "info": {
+    "displayName": "Medical Event",
+    "icon": "health"
+  },
+  "options": {},
+  "attributes": {
+    "event_date": {
+      "type": "date",
+      "required": true
+    },
+    "event_type": {
+      "type": "enumeration",
+      "enum": ["vaccination", "sterilisation", "consultation", "traitement", "autre"],
+      "default": "consultation"
+    },
+    "note": {
+      "type": "text"
+    },
+    "veterinarian": {
+      "type": "string"
+    }
+  }
+}

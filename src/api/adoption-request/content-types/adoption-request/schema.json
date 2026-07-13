@@ -35,6 +35,11 @@
       "target": "api::announcement.announcement",
       "inversedBy": "adoption_requests"
     },
+    "animal": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::animal.animal"
+    },
     "adopter": {
       "type": "relation",
       "relation": "manyToOne",
