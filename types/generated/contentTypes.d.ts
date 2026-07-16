@@ -514,7 +514,9 @@ export interface ApiAdoptionRequestAdoptionRequest
       'plugin::users-permissions.user'
     >;
     request_date: Schema.Attribute.Date;
-    status: Schema.Attribute.Enumeration<['pending', 'approved', 'rejected']> &
+    status: Schema.Attribute.Enumeration<
+      ['pending', 'in_progress', 'approved', 'rejected']
+    > &
       Schema.Attribute.DefaultTo<'pending'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &

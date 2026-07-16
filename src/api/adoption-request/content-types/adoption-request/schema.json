@@ -18,6 +18,7 @@
       "type": "enumeration",
       "enum": [
         "pending",
+        "in_progress",
         "approved",
         "rejected"
       ],

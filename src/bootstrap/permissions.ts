@@ -15,8 +15,22 @@ const PUBLIC_READ = [
   'api::tag.tag.find',
 ];
 
+// Every logged-in role needs these to use the front at all: `user.me` backs
+// getCurrentUser() (called on every page load / middleware check), and
+// `user.update` backs the self-service absence toggle on /profile. Both are
+// self-scoped: `me` always returns the caller, and the `user.update` route is
+// restricted to the caller's own id by a controller override in
+// src/extensions/users-permissions/strapi-server.ts — so granting them here
+// can't let one account edit another's.
+const SELF_SERVICE_ACTIONS = [
+  'plugin::users-permissions.user.me',
+  'plugin::users-permissions.user.update',
+  'plugin::users-permissions.role.find',
+];
+
 const ADOPTANT_ACTIONS = [
   ...PUBLIC_READ,
+  ...SELF_SERVICE_ACTIONS,
   'api::animal.animal.discover',
   'api::animal.animal.compatibility',
   'api::adoption-request.adoption-request.create',
@@ -29,6 +43,7 @@ const ADOPTANT_ACTIONS = [
 
 const MEMBRE_ACTIONS = [
   ...PUBLIC_READ,
+  ...SELF_SERVICE_ACTIONS,
   'api::foster-family.foster-family.find',
   'api::foster-family.foster-family.findOne',
   'api::foster-family.foster-family.create',
@@ -62,6 +77,7 @@ const ADMIN_ACTIONS = [
 
 const MEMBRE_USERNAMES = ['marie.dupont', 'jean.martin', 'sophie.bernard'];
 const ADOPTANT_USERNAMES = ['luc.petit', 'emma.moreau'];
+const ADMIN_USERNAMES = ['admin'];
 
 async function grantActions(strapi: Core.Strapi, roleId: number, actions: string[]) {
   for (const action of actions) {
@@ -93,6 +109,18 @@ async function assignUsersToRole(strapi: Core.Strapi, usernames: string[], roleI
   }
 }
 
+// Public self-registration (POST /api/auth/local/register) assigns whatever
+// role is configured here as "default_role" — point it at Adoptant so anyone
+// signing up through the public form lands in that role instead of Strapi's
+// generic "Authenticated". Becoming Membre/Admin stays a manual panel change.
+async function setDefaultRegistrationRole(strapi: Core.Strapi, roleType: string) {
+  const pluginStore = strapi.store({ type: 'plugin', name: 'users-permissions' });
+  const settings = (await pluginStore.get({ key: 'advanced' })) as Record<string, unknown> | null;
+  if (settings && settings.default_role !== roleType) {
+    await pluginStore.set({ key: 'advanced', value: { ...settings, default_role: roleType } });
+  }
+}
+
 export async function configureRolesAndPermissions(strapi: Core.Strapi) {
   const publicRole = await strapi.db.query('plugin::users-permissions.role').findOne({ where: { type: 'public' } });
   if (publicRole) await grantActions(strapi, publicRole.id, PUBLIC_READ);
@@ -107,11 +135,15 @@ export async function configureRolesAndPermissions(strapi: Core.Strapi) {
   if (adoptantRole) {
     await grantActions(strapi, adoptantRole.id, ADOPTANT_ACTIONS);
     await assignUsersToRole(strapi, ADOPTANT_USERNAMES, adoptantRole.id);
+    await setDefaultRegistrationRole(strapi, adoptantRole.type);
   }
 
-  // No user auto-assigned here on purpose — who becomes admin is a deliberate
-  // choice made from the Strapi panel (Content Manager > User > role), not
-  // something to decide silently in a bootstrap script.
+  // Dev seed only: the 'admin' user created in seed.ts (throwaway admin123
+  // credentials, for quickly testing admin-only permissions from the front)
+  // is assigned here, same pattern as Membre/Adoptant above.
   const adminRole = await findOrCreateRole(strapi, 'Admin', "Administrateur — gère l'ensemble des chats et des utilisateurs");
-  if (adminRole) await grantActions(strapi, adminRole.id, ADMIN_ACTIONS);
+  if (adminRole) {
+    await grantActions(strapi, adminRole.id, ADMIN_ACTIONS);
+    await assignUsersToRole(strapi, ADMIN_USERNAMES, adminRole.id);
+  }
 }

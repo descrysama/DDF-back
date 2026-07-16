@@ -14,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "2026-07-13T11:58:33.125Z"
+    "x-generation-date": "2026-07-16T17:46:15.715Z"
   },
   "x-strapi-config": {
     "plugins": [
@@ -8152,6 +8152,7 @@
                 "type": "string",
                 "enum": [
                   "pending",
+                  "in_progress",
                   "approved",
                   "rejected"
                 ]
@@ -8286,6 +8287,7 @@
             "type": "string",
             "enum": [
               "pending",
+              "in_progress",
               "approved",
               "rejected"
             ]
@@ -10110,6 +10112,7 @@
                       "type": "string",
                       "enum": [
                         "pending",
+                        "in_progress",
                         "approved",
                         "rejected"
                       ]
@@ -11621,6 +11624,7 @@
                                   "type": "string",
                                   "enum": [
                                     "pending",
+                                    "in_progress",
                                     "approved",
                                     "rejected"
                                   ]
@@ -14166,6 +14170,7 @@
                               "type": "string",
                               "enum": [
                                 "pending",
+                                "in_progress",
                                 "approved",
                                 "rejected"
                               ]
@@ -16454,6 +16459,7 @@
                               "type": "string",
                               "enum": [
                                 "pending",
+                                "in_progress",
                                 "approved",
                                 "rejected"
                               ]
@@ -18721,6 +18727,7 @@
                             "type": "string",
                             "enum": [
                               "pending",
+                              "in_progress",
                               "approved",
                               "rejected"
                             ]
@@ -21027,6 +21034,7 @@
                             "type": "string",
                             "enum": [
                               "pending",
+                              "in_progress",
                               "approved",
                               "rejected"
                             ]
@@ -23717,6 +23725,7 @@
                                   "type": "string",
                                   "enum": [
                                     "pending",
+                                    "in_progress",
                                     "approved",
                                     "rejected"
                                   ]
@@ -25994,6 +26003,7 @@
                             "type": "string",
                             "enum": [
                               "pending",
+                              "in_progress",
                               "approved",
                               "rejected"
                             ]
@@ -29070,6 +29080,7 @@
                         "type": "string",
                         "enum": [
                           "pending",
+                          "in_progress",
                           "approved",
                           "rejected"
                         ]
@@ -30616,6 +30627,7 @@
                             "type": "string",
                             "enum": [
                               "pending",
+                              "in_progress",
                               "approved",
                               "rejected"
                             ]
