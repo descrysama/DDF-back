@@ -34,6 +34,10 @@
     "max_capacity": {
       "type": "integer"
     },
+    "is_available": {
+      "type": "boolean",
+      "default": true
+    },
     "foster_assignments": {
       "type": "relation",
       "relation": "oneToMany",

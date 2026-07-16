@@ -26,7 +26,7 @@ services:
       - ./src:/opt/app/src
       - ./public/uploads:/opt/app/public/uploads
     networks:
-      - proxy 
+      - proxy
 
 networks:
   proxy:

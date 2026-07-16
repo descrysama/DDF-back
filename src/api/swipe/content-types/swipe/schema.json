@@ -1,0 +1,30 @@
+{
+  "kind": "collectionType",
+  "collectionName": "swipes",
+  "info": {
+    "singularName": "swipe",
+    "pluralName": "swipes",
+    "displayName": "Swipe"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "direction": {
+      "type": "enumeration",
+      "enum": ["like", "pass"],
+      "required": true
+    },
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "animal": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::animal.animal"
+    }
+  }
+}

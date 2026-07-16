@@ -48,6 +48,11 @@
       ],
       "default": "none"
     },
+    "age_preference": {
+      "type": "enumeration",
+      "enum": ["chaton", "adulte", "senior", "peu_importe"],
+      "default": "peu_importe"
+    },
     "motivation": {
       "type": "text"
     }

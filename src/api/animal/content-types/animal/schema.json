@@ -77,6 +77,22 @@
         "high"
       ]
     },
+    "medias": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.animal-media"
+    },
+    "video_url": {
+      "type": "string"
+    },
+    "trap_date": {
+      "type": "date"
+    },
+    "medical_history": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.medical-event"
+    },
     "announcements": {
       "type": "relation",
       "relation": "manyToMany",
@@ -101,10 +117,15 @@
       "target": "api::volunteer-assignment.volunteer-assignment",
       "mappedBy": "animal"
     },
-    "medias": {
-      "type": "component",
-      "repeatable": true,
-      "component": "shared.animal-media"
+    "referent": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "backup_referents": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "plugin::users-permissions.user"
     }
   }
 }
