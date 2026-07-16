@@ -10,9 +10,11 @@ const PUBLIC_READ = [
   'api::animal.animal.find',
   'api::animal.animal.findOne',
   'api::breed.breed.find',
+  'api::breed.breed.findOne',
   'api::announcement.announcement.find',
   'api::announcement.announcement.findOne',
   'api::tag.tag.find',
+  'api::tag.tag.findOne',
 ];
 
 // Every logged-in role needs these to use the front at all: `user.me` backs
@@ -63,16 +65,40 @@ const MEMBRE_ACTIONS = [
   'api::animal.animal.update',
 ];
 
+// Admin = accès complet (CRUD) sur tout le domaine métier + lecture des comptes
+// utilisateurs. C'est le rôle le plus permissif de l'appli (à distinguer du
+// super-admin du panel Strapi, géré séparément dans seed.ts).
 const ADMIN_ACTIONS = [
   ...PUBLIC_READ,
   ...MEMBRE_ACTIONS,
   'api::animal.animal.create',
   'api::animal.animal.delete',
+  'api::breed.breed.create',
+  'api::breed.breed.update',
+  'api::breed.breed.delete',
+  'api::announcement.announcement.create',
+  'api::announcement.announcement.update',
+  'api::announcement.announcement.delete',
+  'api::tag.tag.create',
+  'api::tag.tag.update',
+  'api::tag.tag.delete',
   'api::foster-family.foster-family.delete',
+  'api::foster-assignment.foster-assignment.findOne',
+  'api::foster-assignment.foster-assignment.delete',
+  'api::evaluation.evaluation.findOne',
+  'api::evaluation.evaluation.delete',
   'api::adoption-request.adoption-request.create',
   'api::adoption-request.adoption-request.delete',
+  'api::volunteer-assignment.volunteer-assignment.findOne',
+  'api::volunteer-assignment.volunteer-assignment.delete',
   'api::swipe.swipe.find',
   'api::adopter-profile.adopter-profile.find',
+  'api::adopter-profile.adopter-profile.findOne',
+  'api::adopter-profile.adopter-profile.create',
+  'api::adopter-profile.adopter-profile.update',
+  'api::adopter-profile.adopter-profile.delete',
+  'plugin::users-permissions.user.find',
+  'plugin::users-permissions.user.findOne',
 ];
 
 const MEMBRE_USERNAMES = ['marie.dupont', 'jean.martin', 'sophie.bernard'];

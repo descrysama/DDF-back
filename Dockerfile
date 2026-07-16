@@ -1,14 +1,22 @@
-FROM node:18-alpine
-# Installation des dépendances nécessaires
-RUN apk update && apk add --no-cache build-base gcc autoconf automake zlib-dev libpng-dev vips-dev git
+FROM node:22
+
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    gcc \
+    autoconf \
+    automake \
+    zlib1g-dev \
+    libpng-dev \
+    libvips-dev \
+    git \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt/app
 COPY package.json package-lock.json ./
 RUN npm install
 
-WORKDIR /opt/app
 COPY . .
 RUN npm run build
-EXPOSE 1337
 
+EXPOSE 1337
 CMD ["npm", "run", "develop"]

@@ -1,13 +1,13 @@
 import type { Schema, Struct } from '@strapi/strapi';
 
 export interface SharedAnimalMedia extends Struct.ComponentSchema {
-  collectionName: 'components_shared_animal_media';
+  collectionName: 'components_shared_animal_medias';
   info: {
     displayName: 'Animal Media';
-    icon: 'images';
+    icon: 'picture';
   };
   attributes: {
-    image: Schema.Attribute.Media<'images'>;
+    image: Schema.Attribute.Media<'images'> & Schema.Attribute.Required;
     is_cover: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
   };
 }

@@ -9,55 +9,25 @@ services:
     ports:
       - '1337:1337'
     environment:
-      DATABASE_CLIENT: postgres
-      DATABASE_HOST: strapiDB
-      DATABASE_PORT: 5432
-      DATABASE_NAME: strapi
-      DATABASE_USERNAME: strapi
-      DATABASE_PASSWORD: strapiPassword # /!\ Change-moi en prod
-      JWT_SECRET: tobechanged     # Génère un token safe plus tard
+      DATABASE_CLIENT: sqlite
+      DATABASE_FILENAME: /opt/app/.tmp/data.db
+      JWT_SECRET: tobechanged
       ADMIN_JWT_SECRET: tobechanged
       APP_KEYS: tobechanged
     labels:
-
       - "traefik.enable=true"
-
-
-
-      # Router HTTPS
-
       - "traefik.http.routers.strapi.rule=Host(`strapi.dunerent.com`)"
-
       - "traefik.http.routers.strapi.entrypoints=websecure"
-
       - "traefik.http.routers.strapi.tls=true"
-
       - "traefik.http.routers.strapi.tls.certresolver=letsencrypt"
-
-
-
-      # Service
-
-      - "traefik.http.services.strapi.loadbalancer.server.port=1337" 
+      - "traefik.http.services.strapi.loadbalancer.server.port=1337"
     volumes:
-        - ./config:/opt/app/config
-        - ./src:/opt/app/src
-        - ./public/uploads:/opt/app/public/uploads
-    depends_on:
-      - strapiDB
+      - ./config:/opt/app/config
+      - ./src:/opt/app/src
+      - ./public/uploads:/opt/app/public/uploads
+    networks:
+      - proxy
 
-  strapiDB:
-    container_name: strapiDB
-    image: postgres:15-alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: strapi
-      POSTGRES_PASSWORD: strapiPassword # /!\ Doit matcher avec le mot de passe ci-dessus
-      POSTGRES_DB: strapi
-    volumes:
-      - strapi_data:/var/lib/postgresql/data
-    ports:
-      - '5432:5432'
-
-volumes:
-  strapi_data:
+networks:
+  proxy:
+    external: true

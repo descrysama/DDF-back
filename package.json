@@ -15,11 +15,12 @@
     "upgrade:dry": "npx @strapi/upgrade latest --dry"
   },
   "dependencies": {
-    "@strapi/plugin-cloud": "5.34.0",
-    "@strapi/plugin-documentation": "^5.37.1",
-    "@strapi/plugin-users-permissions": "5.34.0",
+    "@sensinum/strapi-plugin-mcp": "^1.1.0",
+    "@strapi/plugin-cloud": "5.48.0",
+    "@strapi/plugin-documentation": "5.48.0",
+    "@strapi/plugin-users-permissions": "5.48.0",
     "@strapi/provider-email-nodemailer": "^5.50.1",
-    "@strapi/strapi": "5.34.0",
+    "@strapi/strapi": "5.48.0",
     "better-sqlite3": "12.4.1",
     "fs-extra": "^10.0.0",
     "mime-types": "^2.1.27",
