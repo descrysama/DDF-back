@@ -10,7 +10,10 @@ import { factories } from '@strapi/strapi';
 
 export default factories.createCoreController('api::swipe.swipe', ({ strapi }) => ({
   async create(ctx) {
-    const { user, animal, direction } = ctx.request.body?.data ?? {};
+    const { animal, direction } = ctx.request.body?.data ?? {};
+    // The caller's own identity — never trust a client-supplied `user` field,
+    // or any authenticated user could record swipes on someone else's behalf.
+    const user = ctx.state.user?.id;
 
     if (!user || !animal || !direction) {
       return ctx.badRequest('user, animal et direction sont requis');
