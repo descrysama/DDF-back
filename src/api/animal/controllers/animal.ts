@@ -10,7 +10,10 @@ export default factories.createCoreController('api::animal.animal', ({ strapi })
    * each carrying a compatibility score when the user has an adopter profile.
    */
   async discover(ctx) {
-    const userId = ctx.query.user ? Number(ctx.query.user) : null;
+    // The caller's own identity — never trust a client-supplied `user` query
+    // param here, or any authenticated user could read anyone else's swipe
+    // deck / compatibility results just by changing the id in the URL.
+    const userId = ctx.state.user?.id ?? null;
     const limit = ctx.query.limit ? Number(ctx.query.limit) : 20;
 
     let excludeDocumentIds: string[] = [];
@@ -53,7 +56,9 @@ export default factories.createCoreController('api::animal.animal', ({ strapi })
   /** Compatibility score for a single cat, used on its detail page. */
   async compatibility(ctx) {
     const { id } = ctx.params;
-    const userId = ctx.query.user ? Number(ctx.query.user) : null;
+    // Same rationale as discover(): trust the token's own identity, not a
+    // client-supplied query param.
+    const userId = ctx.state.user?.id ?? null;
 
     if (!userId) {
       ctx.body = { data: { score: null } };
