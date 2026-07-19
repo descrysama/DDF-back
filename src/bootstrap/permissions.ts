@@ -71,6 +71,11 @@ const MEMBRE_ACTIONS = [
 const ADMIN_ACTIONS = [
   ...PUBLIC_READ,
   ...MEMBRE_ACTIONS,
+  // ...et les actions Adoptant : un admin reste un utilisateur qui peut ouvrir
+  // /matches. Sans ça il hérite de `swipe.find` par la liste ci-dessous sans
+  // jamais obtenir `discover`/`compatibility`/`swipe.create` — le deck répond
+  // 403 alors que le rôle est censé être le plus permissif de l'appli.
+  ...ADOPTANT_ACTIONS,
   'api::animal.animal.create',
   'api::animal.animal.delete',
   'api::breed.breed.create',
@@ -87,15 +92,10 @@ const ADMIN_ACTIONS = [
   'api::foster-assignment.foster-assignment.delete',
   'api::evaluation.evaluation.findOne',
   'api::evaluation.evaluation.delete',
-  'api::adoption-request.adoption-request.create',
   'api::adoption-request.adoption-request.delete',
   'api::volunteer-assignment.volunteer-assignment.findOne',
   'api::volunteer-assignment.volunteer-assignment.delete',
-  'api::swipe.swipe.find',
-  'api::adopter-profile.adopter-profile.find',
   'api::adopter-profile.adopter-profile.findOne',
-  'api::adopter-profile.adopter-profile.create',
-  'api::adopter-profile.adopter-profile.update',
   'api::adopter-profile.adopter-profile.delete',
   'plugin::users-permissions.user.find',
   'plugin::users-permissions.user.findOne',
