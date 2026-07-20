@@ -452,6 +452,10 @@ export interface ApiAdopterProfileAdopterProfile
     draftAndPublish: false;
   };
   attributes: {
+    activity_level_preference: Schema.Attribute.Enumeration<
+      ['low', 'medium', 'high', 'peu_importe']
+    > &
+      Schema.Attribute.DefaultTo<'peu_importe'>;
     age_preference: Schema.Attribute.Enumeration<
       ['chaton', 'adulte', 'senior', 'peu_importe']
     > &

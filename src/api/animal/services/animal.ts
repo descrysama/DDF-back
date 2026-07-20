@@ -15,6 +15,8 @@ interface AnimalCriteria {
   activity_level: 'low' | 'medium' | 'high' | null;
 }
 
+type ActivityPreference = 'low' | 'medium' | 'high' | 'peu_importe';
+
 interface AdopterCriteria {
   has_children: boolean;
   has_dogs: boolean;
@@ -23,6 +25,7 @@ interface AdopterCriteria {
   housing_type: 'house' | 'apartment' | null;
   experience_level: 'none' | 'some' | 'experienced';
   age_preference?: AgePreference | null;
+  activity_level_preference?: ActivityPreference | null;
 }
 
 interface Absentable {
@@ -46,9 +49,11 @@ function isUserAvailable(user: Absentable | null | undefined): boolean {
 export default factories.createCoreService('api::animal.animal', () => ({
   /**
    * Weighted match between a cat's known constraints and an adopter's
-   * declared household. Each criterion only costs points when there's an
-   * actual conflict — a profile with no children isn't penalised against
-   * `ok_with_children`, since there's nothing to be incompatible with.
+   * declared household, out of 100. Hard-conflict criteria (children, dogs,
+   * cats, indoor/outdoor) only cost points on an actual conflict — a profile
+   * with no children isn't penalised against `ok_with_children`. Soft
+   * preferences (experience, age, energy) always score, giving partial
+   * credit on a mismatch rather than zero.
    */
   computeCompatibility(animal: AnimalCriteria, profile: AdopterCriteria): number {
     let score = 0;
@@ -61,11 +66,15 @@ export default factories.createCoreService('api::animal.animal', () => ({
     score += !animal.indoor_only && !hasOutdoorAccess ? 0 : 20;
 
     const needsExperience = animal.activity_level === 'high';
-    score += needsExperience && profile.experience_level === 'none' ? 5 : 15;
+    score += needsExperience && profile.experience_level === 'none' ? 3 : 10;
 
     const agePreference = profile.age_preference;
     const ageMatches = !agePreference || agePreference === 'peu_importe' || agePreference === animalAgeCategory(animal.age);
-    score += ageMatches ? 15 : 5;
+    score += ageMatches ? 10 : 3;
+
+    const energyPreference = profile.activity_level_preference;
+    const energyMatches = !energyPreference || energyPreference === 'peu_importe' || energyPreference === animal.activity_level;
+    score += energyMatches ? 10 : 3;
 
     return score;
   },
