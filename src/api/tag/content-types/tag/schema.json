@@ -20,6 +20,12 @@
       "relation": "manyToMany",
       "target": "api::announcement.announcement",
       "mappedBy": "tags"
+    },
+    "blog_posts": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::blog-post.blog-post",
+      "mappedBy": "tags"
     }
   }
 }
