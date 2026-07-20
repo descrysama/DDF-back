@@ -1,0 +1,36 @@
+{
+  "kind": "collectionType",
+  "collectionName": "distributions",
+  "info": {
+    "singularName": "distribution",
+    "pluralName": "distributions",
+    "displayName": "Distribution"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "date": {
+      "type": "date",
+      "required": true
+    },
+    "location": {
+      "type": "string",
+      "default": "Rue Desaix, Lyon 3e"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["planned", "completed", "cancelled"],
+      "default": "planned"
+    },
+    "notes": {
+      "type": "text"
+    },
+    "volunteers": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "plugin::users-permissions.user"
+    }
+  }
+}

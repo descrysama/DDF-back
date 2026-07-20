@@ -63,6 +63,10 @@ const MEMBRE_ACTIONS = [
   'api::volunteer-assignment.volunteer-assignment.create',
   'api::volunteer-assignment.volunteer-assignment.update',
   'api::animal.animal.update',
+  'api::distribution.distribution.find',
+  'api::distribution.distribution.findOne',
+  'api::distribution.distribution.create',
+  'api::distribution.distribution.update',
 ];
 
 // Admin = accès complet (CRUD) sur tout le domaine métier + lecture des comptes
@@ -97,6 +101,7 @@ const ADMIN_ACTIONS = [
   'api::volunteer-assignment.volunteer-assignment.delete',
   'api::adopter-profile.adopter-profile.findOne',
   'api::adopter-profile.adopter-profile.delete',
+  'api::distribution.distribution.delete',
   'plugin::users-permissions.user.find',
   'plugin::users-permissions.user.findOne',
 ];
