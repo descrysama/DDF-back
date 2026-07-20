@@ -53,6 +53,11 @@
       "enum": ["chaton", "adulte", "senior", "peu_importe"],
       "default": "peu_importe"
     },
+    "activity_level_preference": {
+      "type": "enumeration",
+      "enum": ["low", "medium", "high", "peu_importe"],
+      "default": "peu_importe"
+    },
     "motivation": {
       "type": "text"
     }
