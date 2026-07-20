@@ -14,7 +14,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "x-generation-date": "2026-07-20T08:07:03.516Z"
+    "x-generation-date": "2026-07-20T10:27:47.118Z"
   },
   "x-strapi-config": {
     "plugins": [
@@ -7618,6 +7618,15 @@
                   "peu_importe"
                 ]
               },
+              "activity_level_preference": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "medium",
+                  "high",
+                  "peu_importe"
+                ]
+              },
               "motivation": {
                 "type": "string"
               },
@@ -8729,6 +8738,15 @@
               "peu_importe"
             ]
           },
+          "activity_level_preference": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "peu_importe"
+            ]
+          },
           "motivation": {
             "type": "string"
           },
@@ -8852,6 +8870,15 @@
                     "chaton",
                     "adulte",
                     "senior",
+                    "peu_importe"
+                  ]
+                },
+                "activity_level_preference": {
+                  "type": "string",
+                  "enum": [
+                    "low",
+                    "medium",
+                    "high",
                     "peu_importe"
                   ]
                 },
