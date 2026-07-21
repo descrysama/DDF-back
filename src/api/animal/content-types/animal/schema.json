@@ -69,6 +69,22 @@
       "type": "boolean",
       "default": false
     },
+    "vaccinated": {
+      "type": "boolean",
+      "default": false
+    },
+    "sterilized": {
+      "type": "boolean",
+      "default": false
+    },
+    "identified": {
+      "type": "boolean",
+      "default": false
+    },
+    "dewormed": {
+      "type": "boolean",
+      "default": false
+    },
     "activity_level": {
       "type": "enumeration",
       "enum": [

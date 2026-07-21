@@ -597,6 +597,7 @@ export interface ApiAnimalAnimal extends Struct.CollectionTypeSchema {
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     description: Schema.Attribute.Text;
+    dewormed: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     diet_notes: Schema.Attribute.Text;
     evaluations: Schema.Attribute.Relation<
       'oneToMany',
@@ -607,6 +608,7 @@ export interface ApiAnimalAnimal extends Struct.CollectionTypeSchema {
       'api::foster-assignment.foster-assignment'
     >;
     gender: Schema.Attribute.Enumeration<['male', 'female', 'unknown']>;
+    identified: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     indoor_only: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
@@ -630,10 +632,12 @@ export interface ApiAnimalAnimal extends Struct.CollectionTypeSchema {
       ['available', 'in_foster', 'reserved', 'adopted']
     > &
       Schema.Attribute.DefaultTo<'available'>;
+    sterilized: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     trap_date: Schema.Attribute.Date;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    vaccinated: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     video_url: Schema.Attribute.String;
     volunteer_assignments: Schema.Attribute.Relation<
       'oneToMany',
