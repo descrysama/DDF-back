@@ -564,4 +564,25 @@ export async function seedAboutContent(strapi: Core.Strapi) {
     }
     strapi.log.info('[seed] Partenaires créés.');
   }
+
+  const existingSocialLink = await strapi.db.query('api::social-link.social-link').findOne({});
+  if (!existingSocialLink) {
+    // Logos officiels réels (Simple Icons, CC0) en couleur de marque — utilisés
+    // par le pied de page public, remplace les anciennes pastilles texte "ig/fb/yt".
+    const socialLinksData = [
+      { label: 'Instagram', url: 'https://www.instagram.com/sanscroquettesfixes/', iconUrl: 'https://cdn.simpleicons.org/instagram/E4405F' },
+      { label: 'Facebook',  url: 'https://www.facebook.com/sanscroquettesfixes',   iconUrl: 'https://cdn.simpleicons.org/facebook/1877F2' },
+      { label: 'X',         url: 'https://x.com/CroquettesFixes',                  iconUrl: 'https://cdn.simpleicons.org/x/000000' },
+      { label: 'TikTok',    url: 'https://www.tiktok.com/@sanscroquettesfixes',     iconUrl: 'https://cdn.simpleicons.org/tiktok/000000' },
+    ];
+
+    for (let i = 0; i < socialLinksData.length; i += 1) {
+      const { label, url, iconUrl } = socialLinksData[i];
+      const iconId = await uploadImageFromUrl(strapi, iconUrl, `social-${label.toLowerCase()}`);
+      await strapi.db.query('api::social-link.social-link').create({
+        data: { label, url, icon: iconId, order: i },
+      });
+    }
+    strapi.log.info('[seed] Réseaux sociaux créés.');
+  }
 }

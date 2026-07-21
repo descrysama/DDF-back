@@ -22,6 +22,8 @@ const PUBLIC_READ = [
   'api::team-member.team-member.findOne',
   'api::partner.partner.find',
   'api::partner.partner.findOne',
+  'api::social-link.social-link.find',
+  'api::social-link.social-link.findOne',
 ];
 
 // Every logged-in role needs these to use the front at all: `user.me` backs
