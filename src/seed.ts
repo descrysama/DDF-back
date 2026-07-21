@@ -5,16 +5,19 @@ import fse from 'fs-extra';
 import mime from 'mime-types';
 
 /**
- * Récupère une photo de chat aléatoire depuis cataas.com (Cat as a Service,
- * API publique dédiée aux photos de chats de test) et l'upload dans la
- * médiathèque Strapi. Renvoie l'id du média créé, ou null si le
- * téléchargement échoue (pas de connexion, API indisponible...) — le seed
- * ne doit pas planter le boot juste parce qu'une photo n'a pas pu être
- * récupérée.
+ * Récupère une image depuis une URL publique et l'upload dans la médiathèque
+ * Strapi. Renvoie l'id du média créé, ou null si le téléchargement échoue
+ * (pas de connexion, API indisponible...) — le seed ne doit pas planter le
+ * boot juste parce qu'une image n'a pas pu être récupérée.
  */
-async function uploadCatPhoto(strapi: Core.Strapi, filenameBase: string): Promise<number | null> {
+async function uploadImageFromUrl(strapi: Core.Strapi, url: string, filenameBase: string): Promise<number | null> {
   try {
-    const response = await fetch('https://cataas.com/cat');
+    // Wikimedia (et d'autres hébergeurs) exigent un User-Agent descriptif et
+    // peuvent renvoyer 403/429 sans ça, voir
+    // https://meta.wikimedia.org/wiki/User-Agent_policy.
+    const response = await fetch(url, {
+      headers: { 'User-Agent': 'DDF-back-seed/1.0 (https://github.com/ddf; contact@ddf.fr)' },
+    });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
     const contentType = response.headers.get('content-type') || 'image/jpeg';
@@ -40,9 +43,17 @@ async function uploadCatPhoto(strapi: Core.Strapi, filenameBase: string): Promis
       await fse.remove(tmpDir);
     }
   } catch (err) {
-    strapi.log.warn(`[seed] Photo indisponible pour ${filenameBase} : ${(err as Error).message}`);
+    strapi.log.warn(`[seed] Image indisponible pour ${filenameBase} : ${(err as Error).message}`);
     return null;
   }
+}
+
+/**
+ * Photo de chat aléatoire depuis cataas.com (Cat as a Service, API publique
+ * dédiée aux photos de chats de test).
+ */
+function uploadCatPhoto(strapi: Core.Strapi, filenameBase: string): Promise<number | null> {
+  return uploadImageFromUrl(strapi, 'https://cataas.com/cat', filenameBase);
 }
 
 /**
@@ -471,4 +482,86 @@ export async function seed(strapi: Core.Strapi) {
   await ensureSuperAdmin(strapi);
 
   strapi.log.info('[seed] ✅ Seed terminé avec succès.');
+}
+
+/**
+ * Seed de la page à propos (hero, équipe, partenaires), séparé de seed()
+ * ci-dessus et re-vérifié à chaque boot (même pattern que
+ * configureRolesAndPermissions) : contrairement au reste du seed, ces
+ * content-types ont été ajoutés après la mise en prod initiale, donc une base
+ * déjà seedée (breeds existants) ne doit pas en rester privée. Chaque
+ * sous-section vérifie sa propre présence pour rester idempotente.
+ * Photos/logos placeholder récupérés depuis des services publics (cataas.com,
+ * i.pravatar.cc, placehold.co) — à remplacer par les vraies photos une fois
+ * fournies, directement depuis la médiathèque Strapi.
+ */
+export async function seedAboutContent(strapi: Core.Strapi) {
+  const existingAboutPage = await strapi.db.query('api::about-page.about-page').findOne({});
+  if (!existingAboutPage) {
+    const heroPhotoId = await uploadImageFromUrl(strapi, 'https://cataas.com/cat', 'about-hero-pilgrim');
+    await strapi.db.query('api::about-page.about-page').create({
+      data: {
+        hero_photo: heroPhotoId,
+        hero_caption: "Pilgrim, 13 ans. Recueilli en 2024 après l'hospitalisation de son humaine. Il vit désormais en famille d'accueil.",
+      },
+    });
+    strapi.log.info('[seed] Hero de la page à propos créé.');
+  }
+
+  const existingTeamMember = await strapi.db.query('api::team-member.team-member').findOne({});
+  if (!existingTeamMember) {
+    const teamMembersData = [
+      { name: 'Clara',   role: 'Présidente, fondatrice', avatar: 47 },
+      { name: 'Léo',     role: 'Trésorier',               avatar: 12 },
+      { name: 'Margaux', role: 'Coordination FA',         avatar: 33 },
+      { name: 'Yannis',  role: 'Distributions',           avatar: 52 },
+      { name: 'Aïda',    role: 'Réseaux sociaux',         avatar: 45 },
+      { name: 'Hugo',    role: 'Vétérinaire bénévole',    avatar: 15 },
+    ];
+
+    await Promise.all(
+      teamMembersData.map(async (member, i) => {
+        const photoId = await uploadImageFromUrl(
+          strapi,
+          `https://i.pravatar.cc/300?img=${member.avatar}`,
+          `team-${member.name.toLowerCase()}`,
+        );
+        return strapi.db.query('api::team-member.team-member').create({
+          data: { name: member.name, role: member.role, photo: photoId, order: i },
+        });
+      }),
+    );
+    strapi.log.info('[seed] Membres de l\'équipe créés.');
+  }
+
+  const existingPartner = await strapi.db.query('api::partner.partner').findOne({});
+  if (!existingPartner) {
+    // Uniquement de la démo (pas de vrai partenariat) : logos officiels réels
+    // via Wikimedia Commons pour les marques identifiables, `null` pour les
+    // deux cabinets vétérinaires fictifs et la Fondation B. Bardot (pas de
+    // fichier fiable trouvé) — le composant front retombe alors sur une
+    // pastille texte.
+    const partnersData: { name: string; logoUrl: string | null }[] = [
+      { name: 'Ville de Lyon',           logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/9/90/Blason_Ville_fr_Lyon.svg' },
+      { name: 'Métropole 69',            logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/c/c2/M%C3%A9tropole_de_Lyon_%28logo%29.png' },
+      { name: 'Cabinet Vét. Charpennes', logoUrl: null },
+      { name: 'Croix-Rousse Vet',        logoUrl: null },
+      { name: 'Maxi Zoo Part-Dieu',      logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/9/9f/Fressnapf_Logo_2023.svg' },
+      { name: 'Royal Canin',             logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/af/Royal-Canin-Logo.svg' },
+      { name: "30 Millions d'Amis",      logoUrl: "https://upload.wikimedia.org/wikipedia/fr/9/92/Fondation_30_millions_d%27amis_logo.svg" },
+      { name: 'Fondation B. Bardot',     logoUrl: null },
+    ];
+
+    // Séquentiel (pas Promise.all) : des requêtes concurrentes vers Wikimedia
+    // depuis la même IP se font throttle (429), contrairement à cataas.com /
+    // pravatar.cc plus haut.
+    for (let i = 0; i < partnersData.length; i += 1) {
+      const { name, logoUrl } = partnersData[i];
+      const logoId = logoUrl ? await uploadImageFromUrl(strapi, logoUrl, `partner-${i}`) : null;
+      await strapi.db.query('api::partner.partner').create({
+        data: { name, logo: logoId, order: i },
+      });
+    }
+    strapi.log.info('[seed] Partenaires créés.');
+  }
 }

@@ -15,6 +15,13 @@ const PUBLIC_READ = [
   'api::announcement.announcement.findOne',
   'api::tag.tag.find',
   'api::tag.tag.findOne',
+  'api::blog-post.blog-post.find',
+  'api::blog-post.blog-post.findOne',
+  'api::about-page.about-page.find',
+  'api::team-member.team-member.find',
+  'api::team-member.team-member.findOne',
+  'api::partner.partner.find',
+  'api::partner.partner.findOne',
 ];
 
 // Every logged-in role needs these to use the front at all: `user.me` backs
