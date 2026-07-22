@@ -41,5 +41,5 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Trigger Portainer webhook
-        run: curl -fsSL -X POST "${{ secrets.PORTAINER_WEBHOOK_URL }}"
+      # - name: Trigger Portainer webhook
+      #   run: curl -fsSL -X POST "${{ secrets.PORTAINER_WEBHOOK_URL }}"
