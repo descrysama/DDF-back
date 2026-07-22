@@ -6,6 +6,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+env:
+  IMAGE: ghcr.io/descrysama/ddf-back
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -28,3 +31,18 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          platforms: linux/arm64
+          tags: |
+            ${{ env.IMAGE }}:latest
+            ${{ env.IMAGE }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # - name: Trigger Portainer webhook
+      #   run: curl -fsSL -X POST "${{ secrets.PORTAINER_WEBHOOK_URL }}"
