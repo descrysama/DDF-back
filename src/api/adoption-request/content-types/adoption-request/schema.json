@@ -35,6 +35,14 @@
     "other_pets": {
       "type": "json"
     },
+    "cat_experience": {
+      "type": "enumeration",
+      "enum": [
+        "none",
+        "some",
+        "experienced"
+      ]
+    },
     "remarks": {
       "type": "text"
     },

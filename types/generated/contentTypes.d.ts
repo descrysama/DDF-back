@@ -545,6 +545,9 @@ export interface ApiAdoptionRequestAdoptionRequest
       'api::announcement.announcement'
     >;
     applicant: Schema.Attribute.JSON;
+    cat_experience: Schema.Attribute.Enumeration<
+      ['none', 'some', 'experienced']
+    >;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
