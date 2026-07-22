@@ -38,6 +38,12 @@
       "target": "api::tag.tag",
       "inversedBy": "announcements"
     },
+    "constraints": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::constraint.constraint",
+      "inversedBy": "announcements"
+    },
     "adoption_requests": {
       "type": "relation",
       "relation": "oneToMany",
