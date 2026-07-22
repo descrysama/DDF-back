@@ -25,6 +25,11 @@
       "type": "relation",
       "relation": "manyToOne",
       "target": "api::animal.animal"
+    },
+    "announcement": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::announcement.announcement"
     }
   }
 }

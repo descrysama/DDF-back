@@ -114,43 +114,6 @@ export interface AdminApiTokenPermission extends Struct.CollectionTypeSchema {
   };
 }
 
-export interface AdminAuditLog extends Struct.CollectionTypeSchema {
-  collectionName: 'strapi_audit_logs';
-  info: {
-    displayName: 'Audit Log';
-    pluralName: 'audit-logs';
-    singularName: 'audit-log';
-  };
-  options: {
-    draftAndPublish: false;
-    timestamps: false;
-  };
-  pluginOptions: {
-    'content-manager': {
-      visible: false;
-    };
-    'content-type-builder': {
-      visible: false;
-    };
-  };
-  attributes: {
-    action: Schema.Attribute.String & Schema.Attribute.Required;
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    date: Schema.Attribute.DateTime & Schema.Attribute.Required;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<'oneToMany', 'admin::audit-log'> &
-      Schema.Attribute.Private;
-    payload: Schema.Attribute.JSON;
-    publishedAt: Schema.Attribute.DateTime;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    user: Schema.Attribute.Relation<'oneToOne', 'admin::user'>;
-  };
-}
-
 export interface AdminPermission extends Struct.CollectionTypeSchema {
   collectionName: 'admin_permissions';
   info: {
@@ -637,7 +600,6 @@ export interface ApiAnimalAnimal extends Struct.CollectionTypeSchema {
       'manyToMany',
       'plugin::users-permissions.user'
     >;
-    bonded_with: Schema.Attribute.Relation<'oneToOne', 'api::animal.animal'>;
     breed: Schema.Attribute.Relation<'manyToOne', 'api::breed.breed'>;
     characters: Schema.Attribute.Relation<
       'manyToMany',
@@ -705,7 +667,7 @@ export interface ApiAnnouncementAnnouncement
     singularName: 'announcement';
   };
   options: {
-    draftAndPublish: false;
+    draftAndPublish: true;
   };
   attributes: {
     adoption_requests: Schema.Attribute.Relation<
@@ -713,6 +675,10 @@ export interface ApiAnnouncementAnnouncement
       'api::adoption-request.adoption-request'
     >;
     animals: Schema.Attribute.Relation<'manyToMany', 'api::animal.animal'>;
+    constraints: Schema.Attribute.Relation<
+      'manyToMany',
+      'api::constraint.constraint'
+    >;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -823,6 +789,38 @@ export interface ApiCharacterCharacter extends Struct.CollectionTypeSchema {
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::character.character'
+    > &
+      Schema.Attribute.Private;
+    name: Schema.Attribute.String & Schema.Attribute.Required;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiConstraintConstraint extends Struct.CollectionTypeSchema {
+  collectionName: 'constraints';
+  info: {
+    displayName: 'Constraint';
+    pluralName: 'constraints';
+    singularName: 'constraint';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    announcements: Schema.Attribute.Relation<
+      'manyToMany',
+      'api::announcement.announcement'
+    >;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::constraint.constraint'
     > &
       Schema.Attribute.Private;
     name: Schema.Attribute.String & Schema.Attribute.Required;
@@ -1081,6 +1079,10 @@ export interface ApiSwipeSwipe extends Struct.CollectionTypeSchema {
   };
   attributes: {
     animal: Schema.Attribute.Relation<'manyToOne', 'api::animal.animal'>;
+    announcement: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::announcement.announcement'
+    >;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1717,7 +1719,6 @@ declare module '@strapi/strapi' {
     export interface ContentTypeSchemas {
       'admin::api-token': AdminApiToken;
       'admin::api-token-permission': AdminApiTokenPermission;
-      'admin::audit-log': AdminAuditLog;
       'admin::permission': AdminPermission;
       'admin::role': AdminRole;
       'admin::session': AdminSession;
@@ -1732,6 +1733,7 @@ declare module '@strapi/strapi' {
       'api::blog-post.blog-post': ApiBlogPostBlogPost;
       'api::breed.breed': ApiBreedBreed;
       'api::character.character': ApiCharacterCharacter;
+      'api::constraint.constraint': ApiConstraintConstraint;
       'api::distribution.distribution': ApiDistributionDistribution;
       'api::evaluation.evaluation': ApiEvaluationEvaluation;
       'api::foster-assignment.foster-assignment': ApiFosterAssignmentFosterAssignment;

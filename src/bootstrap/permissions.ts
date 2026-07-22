@@ -6,13 +6,17 @@ import type { Core } from '@strapi/strapi';
  * this list changes, instead of requiring a fresh DB.
  */
 
+// L'animal brut n'est PAS lisible publiquement : seule une `announcement`
+// publiée (dont le populate expose ses `animals`) constitue la surface
+// publique. Les rôles internes (Membre/Adoptant/Admin) qui ont besoin de lire
+// `animal` directement l'ajoutent explicitement à leur propre liste ci-dessous.
 const PUBLIC_READ = [
-  'api::animal.animal.find',
-  'api::animal.animal.findOne',
   'api::breed.breed.find',
   'api::breed.breed.findOne',
   'api::character.character.find',
   'api::character.character.findOne',
+  'api::constraint.constraint.find',
+  'api::constraint.constraint.findOne',
   'api::announcement.announcement.find',
   'api::announcement.announcement.findOne',
   'api::tag.tag.find',
@@ -44,6 +48,8 @@ const SELF_SERVICE_ACTIONS = [
 const ADOPTANT_ACTIONS = [
   ...PUBLIC_READ,
   ...SELF_SERVICE_ACTIONS,
+  'api::animal.animal.find',
+  'api::animal.animal.findOne',
   'api::animal.animal.discover',
   'api::animal.animal.compatibility',
   'api::adoption-request.adoption-request.create',
@@ -57,6 +63,8 @@ const ADOPTANT_ACTIONS = [
 const MEMBRE_ACTIONS = [
   ...PUBLIC_READ,
   ...SELF_SERVICE_ACTIONS,
+  'api::animal.animal.find',
+  'api::animal.animal.findOne',
   'api::foster-family.foster-family.find',
   'api::foster-family.foster-family.findOne',
   'api::foster-family.foster-family.create',
@@ -99,6 +107,8 @@ const ADMIN_ACTIONS = [
   'api::announcement.announcement.create',
   'api::announcement.announcement.update',
   'api::announcement.announcement.delete',
+  'api::announcement.announcement.publish',
+  'api::announcement.announcement.unpublish',
   'api::tag.tag.create',
   'api::tag.tag.update',
   'api::tag.tag.delete',
@@ -134,6 +144,18 @@ async function grantActions(strapi: Core.Strapi, roleId: number, actions: string
   }
 }
 
+// grantActions n'accorde jamais que ce qui manque : une action retirée d'une
+// des listes ci-dessus reste accordée en base sur une instance déjà démarrée.
+// Utilisé ponctuellement pour révoquer un accès qui existait avant (ex:
+// lecture publique de `animal`, remplacée par `announcement`).
+async function revokeActions(strapi: Core.Strapi, roleId: number, actions: string[]) {
+  for (const action of actions) {
+    await strapi.db.query('plugin::users-permissions.permission').deleteMany({
+      where: { action, role: roleId },
+    });
+  }
+}
+
 async function findOrCreateRole(strapi: Core.Strapi, name: string, description: string) {
   const existing = await strapi.db.query('plugin::users-permissions.role').findOne({ where: { name } });
   if (existing) return existing;
@@ -165,7 +187,11 @@ async function setDefaultRegistrationRole(strapi: Core.Strapi, roleType: string)
 
 export async function configureRolesAndPermissions(strapi: Core.Strapi) {
   const publicRole = await strapi.db.query('plugin::users-permissions.role').findOne({ where: { type: 'public' } });
-  if (publicRole) await grantActions(strapi, publicRole.id, PUBLIC_READ);
+  if (publicRole) {
+    await grantActions(strapi, publicRole.id, PUBLIC_READ);
+    // Ancienne lecture publique directe de `animal`, remplacée par `announcement`.
+    await revokeActions(strapi, publicRole.id, ['api::animal.animal.find', 'api::animal.animal.findOne']);
+  }
 
   const membreRole = await findOrCreateRole(strapi, 'Membre', "Bénévole ou salarié de l'association");
   if (membreRole) {

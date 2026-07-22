@@ -225,11 +225,8 @@ export async function seed(strapi: Core.Strapi) {
     }),
   ]);
 
-  // Lien duo : Félix <-> Nala (relation self-référentielle)
-  await Promise.all([
-    strapi.db.query('api::animal.animal').update({ where: { id: felix.id }, data: { bonded_with: nala.id } }),
-    strapi.db.query('api::animal.animal').update({ where: { id: nala.id }, data: { bonded_with: felix.id } }),
-  ]);
+  // Félix et Nala forment un duo : ils sont réunis sur une même annonce
+  // (cf. section 9) plutôt que via une relation animal <-> animal.
 
   // ─── 3bis. Chats supplémentaires ────────────────────────────────────────────
 
@@ -397,9 +394,13 @@ export async function seed(strapi: Core.Strapi) {
   ]);
 
   // ─── 9. Announcements ──────────────────────────────────────────────────────
+  // Créées via le Document Service (et non strapi.db.query, utilisé partout
+  // ailleurs dans ce fichier) car `announcement` a `draftAndPublish: true` :
+  // seul le Document Service sait poser correctement `publishedAt` via
+  // `status: 'published'`. Une annonce publiée = visible publiquement.
 
   const [announceMimi, announceDuo, announceTigrou] = await Promise.all([
-    strapi.db.query('api::announcement.announcement').create({
+    strapi.documents('api::announcement.announcement').create({
       data: {
         title:       'Mimi cherche un foyer aimant',
         description: 'Mimi est une petite chatte européenne de 3 ans, câline et douce. Elle s\'entend bien avec les autres chats et les enfants. Idéale pour une famille ou un foyer en télétravail.',
@@ -407,8 +408,9 @@ export async function seed(strapi: Core.Strapi) {
         animals:     [mimi.id],
         tags:        [tagSociable.id],
       },
+      status: 'published',
     }),
-    strapi.db.query('api::announcement.announcement').create({
+    strapi.documents('api::announcement.announcement').create({
       data: {
         title:       'Duo inséparable : Félix & Nala',
         description: 'Félix et Nala sont deux siamois de 4 ans qui ne peuvent vivre l\'un sans l\'autre. Ils cherchent un foyer prêt à les accueillir ensemble. Adoption urgente, leur famille d\'accueil déménage.',
@@ -416,8 +418,9 @@ export async function seed(strapi: Core.Strapi) {
         animals:     [felix.id, nala.id],
         tags:        [tagDuo.id, tagUrgent.id],
       },
+      status: 'published',
     }),
-    strapi.db.query('api::announcement.announcement').create({
+    strapi.documents('api::announcement.announcement').create({
       data: {
         title:       'Tigrou, un grand timide qui n\'attend que vous',
         description: 'Tigrou est un Bengal de 6 ans au caractère sauvage. Il a besoin d\'un adoptant patient et expérimenté, sans autres animaux ni enfants en bas âge. L\'effort en vaut la peine !',
@@ -425,8 +428,23 @@ export async function seed(strapi: Core.Strapi) {
         animals:     [tigrou.id],
         tags:        [tagTimide.id],
       },
+      status: 'published',
     }),
   ]);
+
+  // Annonce en brouillon (pas de publishedAt) : démontre que le filtrage
+  // public sur les annonces publiées exclut bien ce chat des pages publiques
+  // et du matching, même s'il est "available" côté animal.
+  await strapi.documents('api::announcement.announcement').create({
+    data: {
+      title:       'Oscar — brouillon en préparation',
+      description: 'Oscar est prêt à l\'adoption mais son annonce n\'a pas encore été relue et publiée par un bénévole.',
+      status:      'open',
+      animals:     [oscar.id],
+      tags:        [tagSociable.id],
+    },
+    // Pas de `status: 'published'` ici : reste en brouillon (publishedAt: null).
+  });
 
   // ─── 10. Adoption Requests ─────────────────────────────────────────────────
 
@@ -620,4 +638,55 @@ export async function seedCharacters(strapi: Core.Strapi) {
     }),
   );
   strapi.log.info(`[seed] Caractères assignés à ${animals.length} animaux.`);
+}
+
+/**
+ * Idempotent, comme seedCharacters : les contraintes ont été ajoutées après le
+ * seed initial des annonces, donc une base déjà seedée doit quand même
+ * recevoir les contraintes et les voir assignées aux annonces déjà présentes.
+ * Passe par le Document Service (et non strapi.db.query) pour lire/écrire
+ * `announcement`, qui a `draftAndPublish: true`.
+ */
+export async function seedConstraints(strapi: Core.Strapi) {
+  const existingConstraint = await strapi.db.query('api::constraint.constraint').findOne({});
+  if (existingConstraint) return;
+
+  const constraintNames = [
+    'Pas d\'enfants en bas âge',
+    'Pas d\'autres chats',
+    'Pas de chiens',
+    'Extérieur sécurisé obligatoire',
+    'Adoption en duo uniquement',
+    'Foyer expérimenté requis',
+    'Présence humaine fréquente',
+  ];
+
+  const constraints = await Promise.all(
+    constraintNames.map((name) => strapi.db.query('api::constraint.constraint').create({ data: { name } })),
+  );
+  strapi.log.info(`[seed] ${constraints.length} contraintes créées.`);
+
+  const [publishedAnnouncements, draftAnnouncements] = await Promise.all([
+    strapi.documents('api::announcement.announcement').findMany({ status: 'published' }),
+    strapi.documents('api::announcement.announcement').findMany({ status: 'draft' }),
+  ]);
+
+  await Promise.all([
+    ...publishedAnnouncements.map((announcement: { documentId: string }, i: number) =>
+      strapi.documents('api::announcement.announcement').update({
+        documentId: announcement.documentId,
+        data: { constraints: [constraints[i % constraints.length].id] },
+        status: 'published',
+      }),
+    ),
+    ...draftAnnouncements.map((announcement: { documentId: string }, i: number) =>
+      strapi.documents('api::announcement.announcement').update({
+        documentId: announcement.documentId,
+        data: { constraints: [constraints[i % constraints.length].id] },
+      }),
+    ),
+  ]);
+  strapi.log.info(
+    `[seed] Contraintes assignées à ${publishedAnnouncements.length + draftAnnouncements.length} annonces.`,
+  );
 }

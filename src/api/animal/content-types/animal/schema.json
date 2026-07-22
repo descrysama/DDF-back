@@ -51,11 +51,6 @@
       "target": "api::character.character",
       "inversedBy": "animals"
     },
-    "bonded_with": {
-      "type": "relation",
-      "relation": "oneToOne",
-      "target": "api::animal.animal"
-    },
     "diet_notes": {
       "type": "text"
     },

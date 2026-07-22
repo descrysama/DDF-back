@@ -7,7 +7,7 @@
     "displayName": "Announcement"
   },
   "options": {
-    "draftAndPublish": false
+    "draftAndPublish": true
   },
   "pluginOptions": {},
   "attributes": {
@@ -30,6 +30,12 @@
       "type": "relation",
       "relation": "manyToMany",
       "target": "api::animal.animal",
+      "inversedBy": "announcements"
+    },
+    "constraints": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::constraint.constraint",
       "inversedBy": "announcements"
     },
     "tags": {
