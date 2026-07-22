@@ -21,10 +21,10 @@
       "relation": "manyToOne",
       "target": "plugin::users-permissions.user"
     },
-    "animal": {
+    "announcement": {
       "type": "relation",
       "relation": "manyToOne",
-      "target": "api::animal.animal"
+      "target": "api::announcement.announcement"
     }
   }
 }

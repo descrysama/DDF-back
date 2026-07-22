@@ -1079,7 +1079,10 @@ export interface ApiSwipeSwipe extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
-    animal: Schema.Attribute.Relation<'manyToOne', 'api::animal.animal'>;
+    announcement: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::announcement.announcement'
+    >;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;

@@ -6,8 +6,9 @@ import { factories } from '@strapi/strapi';
 
 export default factories.createCoreController('api::animal.animal', ({ strapi }) => ({
   /**
-   * Swipe deck feed: available cats the given user hasn't swiped on yet,
-   * each carrying a compatibility score when the user has an adopter profile.
+   * Swipe deck feed: open announcements the given user hasn't swiped on yet,
+   * each carrying a compatibility score (against its first animal) when the
+   * user has an adopter profile.
    */
   async discover(ctx) {
     // The caller's own identity — never trust a client-supplied `user` query
@@ -20,20 +21,24 @@ export default factories.createCoreController('api::animal.animal', ({ strapi })
     if (userId) {
       const swipes = await strapi.documents('api::swipe.swipe').findMany({
         filters: { user: { id: userId } },
-        populate: { animal: true },
+        populate: { announcement: true },
         limit: 1000,
       });
       excludeDocumentIds = swipes
-        .map((s: any) => s.animal?.documentId)
+        .map((s: any) => s.announcement?.documentId)
         .filter((id: unknown): id is string => Boolean(id));
     }
 
-    const animals = await strapi.documents('api::animal.animal').findMany({
+    const announcements = await strapi.documents('api::announcement.announcement').findMany({
       filters: {
-        status: 'available',
+        status: 'open',
         ...(excludeDocumentIds.length ? { documentId: { $notIn: excludeDocumentIds } } : {}),
       },
-      populate: { breed: true, bonded_with: true, medias: { populate: ['image'] } },
+      populate: {
+        animals: { populate: { breed: true, characters: true, medias: { populate: ['image'] }, medical_history: true } },
+        constraints: true,
+        tags: true,
+      },
       limit,
     });
 
@@ -46,9 +51,12 @@ export default factories.createCoreController('api::animal.animal', ({ strapi })
     const animalService = strapi.service('api::animal.animal');
 
     ctx.body = {
-      data: animals.map((animal: any) => ({
-        ...animal,
-        compatibility: profile ? animalService.computeCompatibility(animal, profile) : null,
+      data: announcements.map((announcement: any) => ({
+        ...announcement,
+        compatibility:
+          profile && announcement.animals?.[0]
+            ? animalService.computeCompatibility(announcement.animals[0], profile)
+            : null,
       })),
     };
   },
