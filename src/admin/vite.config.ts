@@ -8,7 +8,7 @@ export default (config: UserConfig) => {
       },
     },
     server: {
-      allowedHosts: ['strapi.dunerent.com'],
+      allowedHosts: ['hypnoid-nonbrutal-aylin.ngrok-free.dev'],
     },
   });
 };
