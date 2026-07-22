@@ -575,18 +575,19 @@ export interface ApiAdoptionRequestAdoptionRequest
       'manyToOne',
       'plugin::users-permissions.user'
     >;
+    adoption_process_agreement: Schema.Attribute.Boolean;
     animal: Schema.Attribute.Relation<'manyToOne', 'api::animal.animal'>;
     announcement: Schema.Attribute.Relation<
       'manyToOne',
       'api::announcement.announcement'
     >;
-    candidat: Schema.Attribute.JSON;
-    chat_info: Schema.Attribute.JSON;
+    applicant: Schema.Attribute.JSON;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    engagements: Schema.Attribute.JSON;
-    foyer: Schema.Attribute.JSON;
+    employment: Schema.Attribute.JSON;
+    household: Schema.Attribute.JSON;
+    housing: Schema.Attribute.JSON;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -595,12 +596,16 @@ export interface ApiAdoptionRequestAdoptionRequest
       Schema.Attribute.Private;
     match_score: Schema.Attribute.Integer;
     message: Schema.Attribute.Text;
+    other_pets: Schema.Attribute.JSON;
+    outdoor: Schema.Attribute.JSON;
     publishedAt: Schema.Attribute.DateTime;
     referent: Schema.Attribute.Relation<
       'manyToOne',
       'plugin::users-permissions.user'
     >;
+    remarks: Schema.Attribute.Text;
     request_date: Schema.Attribute.Date;
+    responsibility_agreement: Schema.Attribute.Boolean;
     status: Schema.Attribute.Enumeration<
       ['pending', 'in_progress', 'approved', 'rejected']
     > &

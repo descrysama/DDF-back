@@ -14,17 +14,32 @@
     "message": {
       "type": "text"
     },
-    "candidat": {
+    "adoption_process_agreement": {
+      "type": "boolean"
+    },
+    "applicant": {
       "type": "json"
     },
-    "foyer": {
+    "household": {
       "type": "json"
     },
-    "chat_info": {
+    "employment": {
       "type": "json"
     },
-    "engagements": {
+    "housing": {
       "type": "json"
+    },
+    "outdoor": {
+      "type": "json"
+    },
+    "other_pets": {
+      "type": "json"
+    },
+    "remarks": {
+      "type": "text"
+    },
+    "responsibility_agreement": {
+      "type": "boolean"
     },
     "status": {
       "type": "enumeration",
