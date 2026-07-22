@@ -138,6 +138,7 @@ export async function seed(strapi: Core.Strapi) {
 
   const createUser = (data: object) =>
     strapi.plugin('users-permissions').service('user').add({
+      provider:  'local',
       confirmed: true,
       blocked:   false,
       role:      roleId,

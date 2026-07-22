@@ -543,9 +543,13 @@ export interface ApiAdoptionRequestAdoptionRequest
       'manyToOne',
       'api::announcement.announcement'
     >;
+    candidat: Schema.Attribute.JSON;
+    chat_info: Schema.Attribute.JSON;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    engagements: Schema.Attribute.JSON;
+    foyer: Schema.Attribute.JSON;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
