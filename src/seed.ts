@@ -589,6 +589,31 @@ export async function seedAboutContent(strapi: Core.Strapi) {
 }
 
 /**
+ * Idempotent, comme seedCharacters/seedAboutContent : les contraintes ont été
+ * ajoutées après le seed initial, donc une base déjà seedée (breeds
+ * existants, seed() court-circuité) doit quand même les recevoir.
+ */
+export async function seedConstraints(strapi: Core.Strapi) {
+  const existingConstraint = await strapi.db.query('api::constraint.constraint').findOne({});
+  if (existingConstraint) return;
+
+  const constraintNames = [
+    "Pas d'enfants en bas âge",
+    "Pas d'autres chats",
+    'Pas de chiens',
+    'Extérieur sécurisé obligatoire',
+    'Adoption en duo uniquement',
+    'Foyer expérimenté requis',
+    'Présence humaine fréquente',
+  ];
+
+  const constraints = await Promise.all(
+    constraintNames.map((name) => strapi.db.query('api::constraint.constraint').create({ data: { name } })),
+  );
+  strapi.log.info(`[seed] ${constraints.length} contraintes créées.`);
+}
+
+/**
  * Idempotent, comme seedAboutContent : les caractères ont été ajoutés après
  * le seed initial, donc une base déjà seedée (breeds existants, seed()
  * court-circuité) doit quand même recevoir les 14 caractères et les voir
