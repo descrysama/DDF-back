@@ -45,6 +45,12 @@
       "target": "api::breed.breed",
       "inversedBy": "animals"
     },
+    "characters": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::character.character",
+      "inversedBy": "animals"
+    },
     "bonded_with": {
       "type": "relation",
       "relation": "oneToOne",

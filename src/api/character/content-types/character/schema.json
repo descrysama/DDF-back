@@ -1,0 +1,25 @@
+{
+  "kind": "collectionType",
+  "collectionName": "characters",
+  "info": {
+    "singularName": "character",
+    "pluralName": "characters",
+    "displayName": "Character"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "animals": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::animal.animal",
+      "mappedBy": "characters"
+    }
+  }
+}

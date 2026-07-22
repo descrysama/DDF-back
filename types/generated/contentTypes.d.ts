@@ -593,6 +593,10 @@ export interface ApiAnimalAnimal extends Struct.CollectionTypeSchema {
     >;
     bonded_with: Schema.Attribute.Relation<'oneToOne', 'api::animal.animal'>;
     breed: Schema.Attribute.Relation<'manyToOne', 'api::breed.breed'>;
+    characters: Schema.Attribute.Relation<
+      'manyToMany',
+      'api::character.character'
+    >;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -748,6 +752,35 @@ export interface ApiBreedBreed extends Struct.CollectionTypeSchema {
     name: Schema.Attribute.String & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
     species: Schema.Attribute.String;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiCharacterCharacter extends Struct.CollectionTypeSchema {
+  collectionName: 'characters';
+  info: {
+    displayName: 'Character';
+    pluralName: 'characters';
+    singularName: 'character';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    animals: Schema.Attribute.Relation<'manyToMany', 'api::animal.animal'>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::character.character'
+    > &
+      Schema.Attribute.Private;
+    name: Schema.Attribute.String & Schema.Attribute.Required;
+    publishedAt: Schema.Attribute.DateTime;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1651,6 +1684,7 @@ declare module '@strapi/strapi' {
       'api::announcement.announcement': ApiAnnouncementAnnouncement;
       'api::blog-post.blog-post': ApiBlogPostBlogPost;
       'api::breed.breed': ApiBreedBreed;
+      'api::character.character': ApiCharacterCharacter;
       'api::distribution.distribution': ApiDistributionDistribution;
       'api::evaluation.evaluation': ApiEvaluationEvaluation;
       'api::foster-assignment.foster-assignment': ApiFosterAssignmentFosterAssignment;

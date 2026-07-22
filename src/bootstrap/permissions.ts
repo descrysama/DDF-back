@@ -11,6 +11,8 @@ const PUBLIC_READ = [
   'api::animal.animal.findOne',
   'api::breed.breed.find',
   'api::breed.breed.findOne',
+  'api::character.character.find',
+  'api::character.character.findOne',
   'api::announcement.announcement.find',
   'api::announcement.announcement.findOne',
   'api::tag.tag.find',

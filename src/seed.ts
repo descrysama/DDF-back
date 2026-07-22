@@ -586,3 +586,37 @@ export async function seedAboutContent(strapi: Core.Strapi) {
     strapi.log.info('[seed] Réseaux sociaux créés.');
   }
 }
+
+/**
+ * Idempotent, comme seedAboutContent : les caractères ont été ajoutés après
+ * le seed initial, donc une base déjà seedée (breeds existants, seed()
+ * court-circuité) doit quand même recevoir les 14 caractères et les voir
+ * assignés à tous les animaux déjà présents.
+ */
+export async function seedCharacters(strapi: Core.Strapi) {
+  const existingCharacter = await strapi.db.query('api::character.character').findOne({});
+  if (existingCharacter) return;
+
+  const characterNames = [
+    'Câlin', 'Sociable', 'Sauvage', 'Indépendant', 'Pot de colle', 'Propre',
+    'Expressif', 'Calme', 'Joueur', 'Sportif', 'Actif', 'Habitué aux enfants',
+    'Habitué aux chats', 'Habitué aux chiens',
+  ];
+
+  const characters = await Promise.all(
+    characterNames.map((name) => strapi.db.query('api::character.character').create({ data: { name } })),
+  );
+  strapi.log.info(`[seed] ${characters.length} caractères créés.`);
+
+  const animals = await strapi.db.query('api::animal.animal').findMany({});
+  await Promise.all(
+    animals.map((animal: { id: number }, i: number) => {
+      const picks = [characters[i % characters.length], characters[(i + 3) % characters.length]];
+      return strapi.db.query('api::animal.animal').update({
+        where: { id: animal.id },
+        data: { characters: picks.map((c) => c.id) },
+      });
+    }),
+  );
+  strapi.log.info(`[seed] Caractères assignés à ${animals.length} animaux.`);
+}
